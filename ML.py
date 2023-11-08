@@ -1,13 +1,3 @@
-
-# # Sample dataset with user attributes, destinations, and restaurant preferences
-# data = {
-#     'user_id': [1, 2, 3],
-#     'salary': [60000, 75000, 55000],
-#     'food_preferences': ['Italian', 'Mexican', 'Japanese'],
-#     'location_preferences': ['Beach', 'City', 'Mountain'],
-#     'destination': ['Beach Resort', 'City Apartment', 'Mountain Cabin'],
-#     'restaurant': ['Italian Restaurant', 'Mexican Restaurant', 'Sushi Bar'],
-# }
 import random
 import pandas as pd
 import math
