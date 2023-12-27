@@ -1,74 +1,3 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
-from werkzeug.security import generate_password_hash, check_password_hash
-
-app = Flask(__name__)
-app.secret_key = 'secret_key_for_flash_messages'
-
-
-# Dummy user data (replace with a database)
-users = [{'username': 'user1', 'password': generate_password_hash('password1')},
-         {'username': 'user2', 'password': generate_password_hash('password2')}]
-
-# @app.route('/')
-def index():
-    return render_template('index.html')
-
-
-# API for login
-# @app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
-        user = next((user for user in users if user['username'] == username), None)
-
-        if user and check_password_hash(user['password'], password):
-            flash('Login successful', 'success')
-            # Implement your session management or token generation here
-            return render_template('user.html', username=username)
-        else:
-            flash('Invalid username or password', 'error')
-
-    return render_template('login.html')
-    
-
-# API for register
-# @app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
-        # Check if the username is already taken
-        if any(user['username'] == username for user in users):
-            flash('Username already taken. Please choose another one.', 'error')
-        else:
-            # Hash the password before storing it
-            hashed_password = generate_password_hash(password)
-            users.append({'username': username, 'password': hashed_password})
-            flash('Registration successful. You can now log in.', 'success')
-            return redirect(url_for('login'))
-
-    return render_template('register.html')
-
-
-# ...
-# API for user
-@app.route('/user',methods=['GET', 'POST'])
-def user(): 
-    # if request.method == 'POST':
-    username = username
-    print(username)
-        
-    # Get the user details from the session or token (implement your session management or token verification here)
-    # For simplicity, we'll use a dummy user
-    dummy_user = {'username': username}
-    
-    return render_template('user.html', user=dummy_user)
-
-# ...
-
 # import subprocess
 
 # def install_package(package_name):
@@ -100,20 +29,54 @@ def flask_app():
     # @web_app.post("/echo")
     # def echo():
     #     return request.json
+    @web_app.post("/echo")
+    def echo():
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.metrics.pairwise import linear_kernel
+        from pymongo import MongoClient
+
+        client = MongoClient("mongodb+srv://test:test@cluster0.47ozeut.mongodb.net/test?retryWrites=true")
+        db = client.get_database('ml')
+        records = db.budget
+        df = list(records.find()) 
+
+        # Vectorize the text attributes (food preferences, location preferences, destination)
+        tfidf_vectorizer = TfidfVectorizer()
+        tfidf_matrix = tfidf_vectorizer.fit_transform(df['food_preferences'] + " " + df['location_preferences'] + " " + df['destination'])
+
+        # Calculate cosine similarity
+        cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
+
+        # Function to recommend destinations and restaurants
+        def recommend_destinations(user_data):
+            user_profile = user_data['food_preferences'] + " " + user_data['location_preferences'] + " " + user_data['destination']
+
+            # Get the index of the user's row in the dataset
+            user_idx = df[df['user_id'] == user_data['user_id']].index[0]
+
+            # Calculate the cosine similarities for the user's profile
+            sim_scores = list(enumerate(cosine_sim[user_idx]))
+
+            # Sort the destinations and restaurants by similarity scores
+            sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+
+            # Get the top 5 recommendations
+            sim_scores = sim_scores[1:6]  # Exclude the user's own row
+            recommendations = df.iloc[[x[0] for x in sim_scores]]
+
+            return recommendations[['destination', 'restaurant']]
 
     
     @web_app.post("/ml")
     def ml():
 
         # file_path = '/ml.csv'
-
-        
         from pymongo import MongoClient
         client = MongoClient("mongodb+srv://test:test@cluster0.47ozeut.mongodb.net/test?retryWrites=true")
         db = client.get_database('ml')
         records = db.budget
         dataset = list(records.find())
-        print(dataset)
+        # print(dataset)
         
         
         # Read the CSV file into a DataFrame
@@ -145,8 +108,8 @@ def flask_app():
         leisure = request.json["interest"]
 
         
-        city_data = [entry for entry in dataset if entry['city'].lower() == user_city.lower() and entry['food_preference'].lower() == food.lower() and entry['interest'].lower() == leisure.lower()]
-        print(city_data)
+        city_data = [entry for entry in dataset if entry['city'].lower() == user_city.lower()]
+        # print(city_data)
 
         if not city_data:
             return "Sorry, we don't have information for that city in our dataset."
@@ -156,14 +119,15 @@ def flask_app():
         for accommodation in city_data:
             for interest in city_data:
                 for restaurant in city_data:
-                    total_budget = accommodation['accommodation_budget'] + interest['interest_budget'] + restaurant['food_budget']
-                    if total_budget <= user_budget:
-                        valid_combinations.append({
-                            'accommodation_place': accommodation['accommodation'],
-                            'interest_place': interest['interest'],
-                            'restaurant': restaurant['restaurant'],
-                            'total_budget': total_budget
-                        })
+                    if restaurant['food_preference'].lower() == food.lower() and interest['interest'].lower() == leisure.lower():
+                        total_budget = accommodation['accommodation_budget'] + interest['interest_budget'] + restaurant['food_budget']
+                        if total_budget <= user_budget:
+                            valid_combinations.append({
+                                'accommodation_place': accommodation['accommodation'],
+                                'interest_place': interest['interest'],
+                                'restaurant': restaurant['restaurant'],
+                                'total_budget': total_budget
+                            })
 
         if not valid_combinations:
             return f"Sorry, we couldn't find any valid combinations within your budget in {user_city}."
@@ -208,7 +172,3 @@ def flask_app():
 
 
     return web_app
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
