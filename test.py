@@ -35,7 +35,7 @@ def flask_app():
         from sklearn.metrics.pairwise import linear_kernel
         from pymongo import MongoClient
 
-        client = MongoClient("mongodb+srv://test:test@cluster0.47ozeut.mongodb.net/test?retryWrites=true")
+        client = MongoClient("")
         db = client.get_database('ml')
         records = db.budget
         df = list(records.find()) 
@@ -72,7 +72,7 @@ def flask_app():
 
         # file_path = '/ml.csv'
         from pymongo import MongoClient
-        client = MongoClient("mongodb+srv://test:test@cluster0.47ozeut.mongodb.net/test?retryWrites=true")
+        client = MongoClient("")
         db = client.get_database('ml')
         records = db.budget
         dataset = list(records.find())

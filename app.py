@@ -109,7 +109,7 @@ def flask_app():
 
         
         from pymongo import MongoClient
-        client = MongoClient("mongodb+srv://test:test@cluster0.47ozeut.mongodb.net/test?retryWrites=true")
+        client = MongoClient("")
         db = client.get_database('ml')
         records = db.budget
         dataset = list(records.find())
