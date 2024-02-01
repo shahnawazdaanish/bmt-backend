@@ -23,6 +23,19 @@ Route::prefix('v1')
         Route::post('reset/{token}', [\App\Http\Controllers\AuthenticationController::class, 'resetConfirm']);
     })
 
+    ->group(function(){
+        Route::group(['middleware' => 'auth:sanctum'], function () {
+            Route::get('previous_history', [\App\Http\Controllers\DummyDataController::class, 'previousHistory']);
+            Route::get('generic_interests', [\App\Http\Controllers\DummyDataController::class, 'populateGenericInterests']);
+
+            Route::get('logout', [\App\Http\Controllers\AuthenticationController::class, 'logout']);
+
+            Route::get('user/profile', function () {
+                // Uses Auth Middleware
+            });
+        });
+    })
+
     ->group(function() {
         // AI api routes
         Route::prefix('ai')

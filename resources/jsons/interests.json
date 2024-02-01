@@ -1,0 +1,27 @@
+{
+    "id": 1,
+    "dob": "",
+    "address": "",
+    "interests": [
+        {
+            "name": "food",
+            "categories" : [
+                {
+                    "name": "asian",
+                    "sub-categories": ""
+                }
+            ],
+            "interests": [
+                "asian",
+                "sea-food"
+            ]
+        },
+        {
+            "name": "food",
+            "interests": [
+                "asian",
+                "sea-food"
+            ]
+        }
+    ]
+}

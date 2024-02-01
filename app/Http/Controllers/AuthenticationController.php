@@ -7,6 +7,7 @@ use App\Http\Requests\ResetConfirmRequest;
 use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\SignUpRequest;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
@@ -59,6 +60,12 @@ class AuthenticationController extends Controller
         $user->password = $resetConfirmRequest->new_password;
         $user->save();
 
+        return Response::make();
+    }
+
+    public function logout(): \Illuminate\Http\Response
+    {
+        auth()->user()->tokens()->delete();
         return Response::make();
     }
 }
