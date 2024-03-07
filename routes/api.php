@@ -28,6 +28,8 @@ Route::prefix('v1')
             Route::get('previous_history', [\App\Http\Controllers\DummyDataController::class, 'previousHistory']);
             Route::get('generic_interests', [\App\Http\Controllers\DummyDataController::class, 'populateGenericInterests']);
 
+            Route::post('get_recommendations', [\App\Http\Controllers\MLDataController::class, 'getRecommendations']);
+
             Route::get('logout', [\App\Http\Controllers\AuthenticationController::class, 'logout']);
 
             Route::get('user/profile', function () {
