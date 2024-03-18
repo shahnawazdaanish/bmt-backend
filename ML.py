@@ -134,3 +134,6 @@ if isinstance(recommendation, str):
 else:
     print(f"Recommended Accommodation: {recommendation['accommodation_place']}")
     print(f"Recommended Interest Place: {recommendation['interest_place']}")
+
+
+            
